@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店家中央出單看板-終極完全體</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #343a40; color: white; padding: 20px; }
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+        .order-card { background: white; color: #333; padding: 20px; border-radius: 10px; width: 250px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-top: 8px solid #ffc107; }
+        .order-card.new { animation: blink 1s infinite alternate; border-top: 8px solid #dc3545; }
+        .item-list { margin: 15px 0; border-top: 1px dashed #ccc; padding-top: 10px; white-space: pre-line; }
+        @keyframes blink { from { box-shadow: 0 0 5px #dc3545; } to { box-shadow: 0 0 20px #dc3545; } }
+    </style>
+</head>
+<body>
+    <h1>📋 賴家羊肉-中央即時點餐跑單看板 (雲端同步終極完全體)</h1>
+    <p>狀態：<span id="system-status" style="color: #ffcc00;">● 正在連接雲端資料庫...</span></p>
+
+    <div class="grid" id="orders-container"></div>
+
+    <script>
+        const fetchUrl = "/api/orders";
+        
+        // 💡 終極祕密武器：用瀏覽器的記憶體，牢牢記住哪些訂單已經「被老闆點掉了」
+        let completedOrderIds = new Set(); 
+        let lastOrderCount = 0;
+
+        function playBeep() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, context.currentTime);
+            oscillator.connect(context.destination);
+            oscillator.start();
+            oscillator.stop(context.currentTime + 0.3);
+        }
+
+        function fetchCloudOrders() {
+            fetch(fetchUrl)
+            .then(response => response.json())
+            .then(orders => {
+                document.getElementById('system-status').innerHTML = "● 雲端連線正常（每 5 秒自動更新）";
+                document.getElementById('system-status').style.color = "#28a745";
+
+                // 💡 1. 核心過濾：先排除掉已經被點掉的訂單，還有試算表空白行
+                const activeOrders = orders.filter(o => o.time && !completedOrderIds.has(o.time + o.table));
+
+                // 💡 2. 檢查是否有新訂單進來
+                if (activeOrders.length > lastOrderCount) {
+                    playBeep(); // 叮咚！新訂單響鈴
+                }
+                lastOrderCount = activeOrders.length;
+                
+                // 💡 3. 重新渲染畫面
+                const container = document.getElementById('orders-container');
+                container.innerHTML = ""; 
+
+                activeOrders.reverse().forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = 'order-card new';
+                    card.innerHTML = `
+                        <h3>🚨 ${order.table}</h3>
+                        <small>時間: ${order.time}</small>
+                        <div class="item-list"><strong>餐點明細：</strong>\n${order.items}</div>
+                        <div style="font-weight:bold; color:#cc1111; margin-bottom:10px;">總計：${order.amount}</div>
+                        <!-- 💡 按下時，把時間+桌號當作唯一鑰匙鎖進記憶體 -->
+                        <button style="width:100%; padding:8px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;" onclick="clearCard('${order.time}', '${order.table}', this)">已出餐/清除</button>
+                    `;
+                    container.appendChild(card);
+                });
+            })
+            .catch(error => {
+                document.getElementById('system-status').innerHTML = "● 連線異常，正在重新嘗試...";
+                document.getElementById('system-status').style.color = "#dc3545";
+            });
+        }
+
+        // 💡 點擊已出餐的動作：一秒在記憶體中黑名單它，並且立刻刷新畫面
+        function clearCard(time, table, buttonEl) {
+            completedOrderIds.add(time + table); // 鎖進記憶體
+            buttonEl.parentElement.remove(); // 畫面拔掉
+            lastOrderCount--;
+        }
+
+        // 點擊解鎖聲音
+        document.body.addEventListener('click', () => { console.log('音效解鎖'); }, { once: true });
+
+        fetchCloudOrders();
+        setInterval(fetchCloudOrders, 5000);
+    </script>
+</body>
+</html>
