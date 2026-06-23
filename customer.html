@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美味餐廳-手機掃碼點餐</title>
+    <style>
+    
+     body { font-family: "Microsoft JhengHei", Arial, sans-serif; margin: 0; padding: 15px; background-color: #1a1a1a; color: #f5f5f5; padding-bottom: 120px; }
+.header { text-align: center; margin-bottom: 20px; background: linear-gradient(135deg, #cc1111, #880000); padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.header h2 { margin: 0; color: #fff; letter-spacing: 2px; }
+.table-info { background: rgba(0,0,0,0.4); padding: 6px 12px; text-align: center; font-weight: bold; border-radius: 20px; color: #ffcc00; display: inline-block; margin-top: 8px; font-size: 14px; }
+.menu-item { background: #2a2a2a; padding: 12px; margin: 12px 0; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; border: 1px solid #3a3a3a; transition: transform 0.2s; }
+.menu-item:active { transform: scale(0.98); } /* 手機按下去有回饋感 */
+.menu-item strong { color: #ffffff; font-size: 16px; }
+.menu-item small { color: #ffcc00; font-size: 14px; font-weight: bold; }
+.btn { background: #cc1111; color: white; border: none; padding: 10px 16px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.btn:active { background: #aa0000; }
+.cart { background: #222; padding: 15px; border-top: 3px solid #cc1111; position: fixed; bottom: 0; left: 0; right: 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); z-index: 100; max-height: 90px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+.cart h3 { margin: 0; font-size: 16px; color: #fff; }
+#cart-list { font-size: 13px; color: #aaa; overflow-y: auto; max-height: 40px; flex: 1; margin: 0 10px; }
+.btn-submit { background: #ffcc00; color: #1a1a1a; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; width: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+</style>
+
+
+<body>
+    <div class="header">
+        <h2>歡迎光臨點餐系統</h2>
+        <div class="table-info">目前桌號：<span id="table-num">5</span> 桌</div>
+    </div>
+
+        <div id="menu">
+        <!-- 分類 1：快炒與配菜 -->
+        <h3 style="background:#cc1111; color:white; padding:8px 12px; border-radius:3px; margin-top:20px; font-size:18px;">🐐 招牌熱炒與精選配菜</h3>
+        
+        <div class="menu-item">
+            <img src="images/shacha_yang.jpg" alt="沙茶羊肉" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>沙茶羊肉</strong><br><small>$120</small></div>
+            <button class="btn" onclick="addToCart('沙茶羊肉', 120)">+ 加點</button>
+        </div>
+        
+        <div class="menu-item">
+            <img src="images/congbau_yang.jpg" alt="蔥爆羊肉" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>蔥爆羊肉</strong><br><small>$150</small></div>
+            <button class="btn" onclick="addToCart('蔥爆羊肉', 150)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/congbau_yang_肚.jpg" alt="蔥爆羊肚" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>蔥爆羊肚</strong><br><small>$150</small></div>
+            <button class="btn" onclick="addToCart('蔥爆羊肚', 150)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/congbau_yang_髓.jpg" alt="蔥爆骨髓" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>蔥爆骨髓</strong><br><small>$190</small></div>
+            <button class="btn" onclick="addToCart('蔥爆骨髓', 190)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/涼拌羊肚.jpg" alt="涼拌羊肚" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>涼拌羊肚</strong><br><small>$150</small></div>
+            <button class="btn" onclick="addToCart('涼拌羊肚', 150)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/涼拌羊肉.jpg" alt="涼拌羊肉" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>涼拌羊肉</strong><br><small>$150</small></div>
+            <button class="btn" onclick="addToCart('涼拌羊肉', 150)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/苦瓜羊肉.jpg" alt="苦瓜羊肉" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>苦瓜羊肉</strong><br><small>$150</small></div>
+            <button class="btn" onclick="addToCart('苦瓜羊肉', 150)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/麻油羊肉.jpg" alt="麻油羊肉" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>麻油羊肉</strong><br><small>$180</small></div>
+            <button class="btn" onclick="addToCart('麻油羊肉', 180)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/麻油骨髓.jpg" alt="麻油骨髓" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>麻油骨髓</strong><br><small>$190</small></div>
+            <button class="btn" onclick="addToCart('麻油骨髓', 190)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/eggs.jpg" alt="蔥花煎蛋" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>蔥花煎蛋</strong><br><small>$80</small></div>
+            <button class="btn" onclick="addToCart('蔥花煎蛋', 80)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/九層塔炒蛋.jpg" alt="九層塔炒蛋" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>九層塔炒蛋</strong><br><small>$80</small></div>
+            <button class="btn" onclick="addToCart('九層塔炒蛋', 80)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/蝦仁炒蛋.jpg" alt="蝦仁炒蛋" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>蝦仁炒蛋</strong><br><small>$130</small></div>
+            <button class="btn" onclick="addToCart('蝦仁炒蛋', 130)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/高麗菜炒蝦仁.jpg" alt="高麗菜炒蝦仁" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>高麗菜炒蝦仁</strong><br><small>$180</small></div>
+            <button class="btn" onclick="addToCart('高麗菜炒蝦仁', 180)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/炒青菜.jpg" alt="炒青菜" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>炒青菜</strong><br><small>$60</small></div>
+            <button class="btn" onclick="addToCart('炒青菜', 60)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/白飯.jpg" alt="白飯" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>白飯</strong><br><small>$10</small></div>
+            <button class="btn" onclick="addToCart('白飯', 10)">+ 加點</button>
+        </div>
+
+        <!-- 分類 2：飯麵主食 -->
+        <h3 style="background:#cc1111; color:white; padding:8px 12px; border-radius:3px; margin-top:20px; font-size:18px;">🍛 飽胃飯麵主食 ($100 專區)</h3>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉燴飯.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉燴飯</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉燴飯', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/蝦仁燴飯.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>蝦仁燴飯</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('蝦仁燴飯', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉炒飯.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉炒飯</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉炒飯', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/蝦仁蛋炒飯.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>蝦仁蛋炒飯</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('蝦仁蛋炒飯', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉燴麵.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉燴麵</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉燴麵', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/蝦仁炒麵.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>蝦仁炒麵</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('蝦仁炒麵', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉炒麵.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉炒麵</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉炒麵', 100)">+ 加點</button>
+        </div>
+
+        
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉燴米粉.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉燴米粉</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉燴米粉', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/蝦仁炒米粉.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>蝦仁炒米粉</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('蝦仁炒米粉', 100)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="display:flex; align-items:center;">
+                <img src="images/羊肉炒米粉.jpg" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+                <div><strong>羊肉炒米粉</strong><br><small>$100</small></div>
+            </div>
+            <button class="btn" onclick="addToCart('羊肉炒米粉', 100)">+ 加點</button>
+        </div>
+
+        <!-- 分類 3：當歸湯麵/飯類 -->
+        <h3 style="background:#cc1111; color:white; padding:8px 12px; border-radius:3px; margin-top:20px; font-size:18px;">🍜 當歸湯麵飯主食</h3>
+
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肉湯麵</strong><br><small>$100</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肉湯麵', 100)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肉米粉湯</strong><br><small>$100</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肉米粉湯', 100)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肉湯泡飯</strong><br><small>$100</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肉湯泡飯', 100)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肉冬粉湯</strong><br><small>$100</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肉冬粉湯', 100)">+ 加點</button>
+        </div>
+
+        <!-- 分類 4：精燉湯品 -->
+        <h3 style="background:#cc1111; color:white; padding:8px 12px; border-radius:3px; margin-top:20px; font-size:18px;">🥣 養生當歸湯品</h3>
+
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊大骨湯</strong><br><small>$90</small></div>
+            <button class="btn" onclick="addToCart('當歸羊大骨湯', 90)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸骨髓湯</strong><br><small>$90</small></div>
+            <button class="btn" onclick="addToCart('當歸骨髓湯', 90)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊排骨湯</strong><br><small>$80</small></div>
+            <button class="btn" onclick="addToCart('當歸羊排骨湯', 80)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肉湯</strong><br><small>$80</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肉湯', 80)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>當歸羊肚湯</strong><br><small>$80</small></div>
+            <button class="btn" onclick="addToCart('當歸羊肚湯', 80)">+ 加點</button>
+        </div>
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>藥膳當歸清湯</strong><br><small>$20</small></div>
+            <button class="btn" onclick="addToCart('藥膳當歸清湯', 20)">+ 加點</button>
+        </div>
+
+        <!-- 分類 5：藥膳羊肉火鍋 -->
+        <h3 style="background:#cc1111; color:white; padding:8px 12px; border-radius:3px; margin-top:20px; font-size:18px;">🍲 藥膳羊肉火鍋 (附火鍋料、高麗菜、沾醬)</h3>
+
+        <div class="menu-item">
+            <img src="images/hotpot_ribs.jpg" alt="原汁羊排骨爐" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>原汁羊排骨爐</strong><br><small>$600</small></div>
+            <button class="btn" onclick="addToCart('原汁羊排骨爐', 600)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <img src="images/hotpot_slices.jpg" alt="原汁羊肉片爐" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right: 10px;" onerror="this.src='https://placehold.co'">
+            <div style="flex: 1;"><strong>原汁羊肉片爐</strong><br><small>$600</small></div>
+            <button class="btn" onclick="addToCart('原汁羊肉片爐', 600)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>【加購】火鍋排骨</strong><br><small>$300</small></div>
+            <button class="btn" onclick="addToCart('【加購】火鍋排骨', 300)">+ 加點</button>
+        </div>
+
+        <div class="menu-item">
+            <div style="flex: 1;"><strong>【加購】火鍋羊肉片</strong><br><small>$300</small></div>
+            <button class="btn" onclick="addToCart('【加購】火鍋羊肉片', 300)">+ 加點</button>
+        </div>
+
+
+    <div class="cart">
+        <h3>🛒 購物車內容</h3>
+        <div id="cart-list">尚未選擇餐點</div>
+        <button class="btn btn-submit" onclick="submitOrder()">確認送出訂單</button>
+    </div>
+
+    <!-- 載入即時通訊套件 -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let cart = {};
+        const tableId = "5"; // 模擬掃描5號桌的QR碼
+
+        function addToCart(name, price) {
+            if (!cart[name]) cart[name] = { count: 0, price: price };
+            cart[name].count++;
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cart-list');
+            if (Object.keys(cart).length === 0) {
+                list.innerHTML = '尚未選擇餐點';
+                return;
+            }
+            let html = '';
+            for (let name in cart) {
+                html += `<div>${name} x ${cart[name].count} (${cart[name].price * cart[name].count}元)</div>`;
+            }
+            list.innerHTML = html;
+        }
+
+function submitOrder() {
+    if (Object.keys(cart).length === 0) {
+        alert('購物車是空的喔！');
+        return;
+    }
+    
+    // 整理要傳給 Google 的資料
+    const order = {
+        table: tableId,
+        items: cart
+    };
+
+    // 已經幫您把專屬的 Google 雲端中轉大腦網址填好了！
+      const googleAppUrl = "https://script.google.com/macros/s/AKfycbyzuWa0BUu05lfoF0SbDAdSQs17G81x_xiQZnMOOV24z34psYD2yG2TgZmhz2zBC62NoQ/exec";
+
+
+    alert('正在將訂單送往雲端，請稍候...');
+
+    // 透過網路通道，直接高空發射給 Google 試算表
+    fetch(googleAppUrl, {
+        method: "POST",
+        mode: "no-cors", 
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(order)
+    })
+    .then(() => {
+        alert('🎉 訂單已成功送出！請稍候餐點。');
+        cart = {};
+        updateCartUI();
+    })
+    .catch(error => {
+        alert('連線失敗，請檢查網路！' + error);
+    });
+}
+
+    </script>
+</body>
+</html>
